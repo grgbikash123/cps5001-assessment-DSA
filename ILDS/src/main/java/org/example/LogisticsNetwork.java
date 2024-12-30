@@ -107,4 +107,86 @@ public class LogisticsNetwork {
         }
     }
 
+
+
+    public List<String> findPath(String startId, String endId, boolean useDistance) {
+        if (!locations.containsKey(startId) || !locations.containsKey(endId)) {
+            return new ArrayList<>();
+        }
+
+        // Initialize distances and previous nodes
+        Map<String, Double> distances = new HashMap<>();
+        Map<String, String> previousNode = new HashMap<>();
+        Set<String> unvisited = new HashSet<>(locations.keySet());
+
+        // Set initial distances to infinity except start node
+        for (String locationId : locations.keySet()) {
+            distances.put(locationId, Double.MAX_VALUE);
+        }
+        distances.put(startId, 0.0);
+
+        while (!unvisited.isEmpty()) {
+            // Find closest unvisited node
+            String current = findClosestNode(unvisited, distances);
+
+            if (current == null || current.equals(endId)) {
+                break;
+            }
+
+            unvisited.remove(current);
+
+            // Update distances to all neighbors
+            for (Road road : getConnectedRoads(current)) {
+                String neighbor = road.getDestination().getId();
+                if (!unvisited.contains(neighbor)) {
+                    continue;
+                }
+
+
+                // Choose whether to use distance or time as cost
+                double cost = useDistance ? road.getDistance() : road.getTravelTime();
+                double newDistance = distances.get(current) + cost;
+
+                if (newDistance < distances.get(neighbor)) {
+                    distances.put(neighbor, newDistance);
+                    previousNode.put(neighbor, current);
+                }
+            }
+        }
+
+        // Build the path
+        return buildPath(startId, endId, previousNode);
+    }
+    private String findClosestNode(Set<String> unvisited, Map<String, Double> distances) {
+        String closest = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (String node : unvisited) {
+            double distance = distances.get(node);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closest = node;
+            }
+        }
+        return closest;
+    }
+
+
+    private List<String> buildPath(String startId, String endId, Map<String, String> previousNode) {
+        List<String> path = new ArrayList<>();
+        String current = endId;
+
+        while (current != null) {
+            path.add(0, current);
+            if (current.equals(startId)) {
+                return path;
+            }
+            current = previousNode.get(current);
+        }
+
+        return new ArrayList<>(); // Return empty list if no path found
+    }
+
+
+
 }

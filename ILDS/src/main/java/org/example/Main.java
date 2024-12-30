@@ -79,5 +79,26 @@ public class Main {
         // Display the initial network
         System.out.println("Initial Network Structure:");
         network.displayNetwork();
+
+
+        // Test pathfinding with different scenarios
+        System.out.println("\nTesting different paths:");
+
+        // Test 1: Find path from Central Hub to Northeast Customer
+        System.out.println("\nPath from Central Hub (H1) to Northeast Customer (C6):");
+        System.out.println("Shortest path  (Distance) : " + network.findPath("H1", "C6", true));
+        System.out.println("Fastest path (Travel Time): " + network.findPath("H1", "C6", false));
+
+        // Test 2: Find path from West Hub to East Customer
+        System.out.println("\nPath from West Hub (H5) to East Customer (C3):");
+        System.out.println("Shortest path  (Distance) : " + network.findPath("H5", "C3", true));
+        System.out.println("Fastest path (Travel Time): " + network.findPath("H5", "C3", false));
+
+        // Test 3: Find path between distant customers
+        System.out.println("\nPath from Southwest Customer (C7) to Northeast Customer (C6):");
+        System.out.println("Shortest path  (Distance) : " + network.findPath("C7", "C6", true));
+        System.out.println("Fastest path (Travel Time): " + network.findPath("C7", "C6", false));
+
+
     }
 }
