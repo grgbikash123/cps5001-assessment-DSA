@@ -100,5 +100,30 @@ public class Main {
         System.out.println("Fastest path (Travel Time): " + network.findPath("C7", "C6", false));
 
 
+        // Setup delivery requirements
+        Map<String, Double> deliveryLoads = new HashMap<>();
+        deliveryLoads.put("C1", 5.0);  // 5 units to Customer 1
+        deliveryLoads.put("C4", 8.0);  // 8 units to Customer 3
+        deliveryLoads.put("C7", 4.0);  // 4 units to Customer 6
+
+        Map<String, Double> deadlines = new HashMap<>();
+        deadlines.put("C1", 10.0);  // 2 hours deadline
+        deadlines.put("C4", 10.0);  // 3 hours deadline
+        deadlines.put("C7", 10.0);  // 2.5 hours deadline
+
+        double vehicleCapacity = 30.0;  // Maximum vehicle capacity
+
+        // Find optimal delivery route
+        List<String> optimalRoute = network.findOptimalDeliveryRoute(
+                "H3",           // Start from Hub 1
+                deliveryLoads, // Delivery requirements
+                deadlines,     // Time constraints
+                vehicleCapacity // Vehicle constraints
+        );
+
+        System.out.println("Optimal delivery route: " + optimalRoute);
+
+
+
     }
 }

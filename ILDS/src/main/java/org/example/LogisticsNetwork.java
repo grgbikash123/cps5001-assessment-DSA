@@ -188,5 +188,155 @@ public class LogisticsNetwork {
     }
 
 
+    public List<String> findOptimalDeliveryRoute(
+            String startId,
+            Map<String, Double> deliveryLoads,
+            Map<String, Double> deadlines,
+            double vehicleCapacity) {
+
+        // Initialize route planning
+        List<String> bestRoute = new ArrayList<>();
+        double[] bestRouteCost = {Double.MAX_VALUE};
+        List<String> deliveryLocations = new ArrayList<>(deliveryLoads.keySet());
+
+        // Try different permutations of delivery locations
+        System.out.println("\n\nStarting route optimization:");
+        System.out.println("\tDelivery locations: " + deliveryLocations);
+        System.out.println("\tVehicle capacity: " + vehicleCapacity);
+        System.out.println("\tStarting from: " + startId + "\n");
+
+        generatePermutations(deliveryLocations, 0, startId, vehicleCapacity,
+                deliveryLoads, deadlines, bestRoute, bestRouteCost);
+
+        if (bestRoute.isEmpty()) {
+            System.out.println("No valid route found. Checking constraints:");
+            // Check total load
+            double totalLoad = deliveryLoads.values().stream().mapToDouble(Double::doubleValue).sum();
+            System.out.println("Total load: " + totalLoad + " / Capacity: " + vehicleCapacity);
+
+            // Check connectivity
+            for (String location : deliveryLocations) {
+                List<String> path = findPath(startId, location, false);
+                System.out.println("Path to " + location + ": " + (path.isEmpty() ? "No path found" : "Path exists"));
+            }
+        }
+        return bestRoute;
+    }
+
+    private void generatePermutations(
+            List<String> locations,
+            int start,
+            String startId,
+            double vehicleCapacity,
+            Map<String, Double> deliveryLoads,
+            Map<String, Double> deadlines,
+            List<String> bestRoute,
+            double[] bestRouteCost) {  // Changed to double[] from double
+
+        if (start == locations.size()) {
+            // Evaluate this permutation
+            evaluateRoute(locations, startId, vehicleCapacity,
+                    deliveryLoads, deadlines, bestRoute, bestRouteCost);
+            return;
+        }
+
+        // Generate permutations
+        for (int i = start; i < locations.size(); i++) {
+            // Swap elements to create new permutation
+            Collections.swap(locations, start, i);
+
+            // Debug output to show permutation being tested
+            System.out.println("Testing permutation: " + locations);
+
+            generatePermutations(locations, start + 1, startId, vehicleCapacity,
+                    deliveryLoads, deadlines, bestRoute, bestRouteCost);
+
+            // Restore the array
+            Collections.swap(locations, start, i);
+        }
+    }
+
+
+
+    private void evaluateRoute(
+            List<String> route,
+            String startId,
+            double vehicleCapacity,
+            Map<String, Double> deliveryLoads,
+            Map<String, Double> deadlines,
+            List<String> bestRoute,
+            double[] bestRouteCost) {
+
+        double currentLoad = 0;
+        double currentTime = 0;
+        String currentLocation = startId;
+        boolean isValidRoute = true;
+
+        System.out.println("\nEvaluating route: " + route);
+
+        // Check if route is feasible
+        for (String nextLocation : route) {
+            // Check capacity constraint
+            currentLoad += deliveryLoads.get(nextLocation);
+            if (currentLoad > vehicleCapacity) {
+                System.out.println("Capacity exceeded at " + nextLocation +
+                        ": " + currentLoad + " > " + vehicleCapacity);
+                isValidRoute = false;
+                break;
+            }
+
+            // Find fastest path to next location
+            List<String> pathToNext = findPath(currentLocation, nextLocation, false);
+            if (pathToNext.isEmpty()) {
+                System.out.println("No path found from " + currentLocation + " to " + nextLocation);
+                isValidRoute = false;
+                break;
+            }
+
+            // Calculate time to reach next location
+            double timeToNext = calculatePathTime(pathToNext);
+            currentTime += timeToNext;
+
+            // Check deadline constraint
+            if (deadlines.containsKey(nextLocation) && currentTime > deadlines.get(nextLocation)) {
+                System.out.println("Deadline missed at " + nextLocation +
+                        ": " + currentTime + " > " + deadlines.get(nextLocation));
+                isValidRoute = false;
+                break;
+            }
+
+            System.out.println("Reached " + nextLocation +
+                    " at time " + currentTime +
+                    " with load " + currentLoad);
+            currentLocation = nextLocation;
+        }
+
+        // Update best route if this route is valid and better than current best
+        if (isValidRoute && currentTime < bestRouteCost[0]) {
+            bestRouteCost[0] = currentTime;
+            bestRoute.clear();
+            bestRoute.addAll(route);
+            System.out.println("New best route found: " + route +
+                    " with total time: " + currentTime);
+        }
+    }
+
+    public double calculatePathTime(List<String> path) {
+        double totalTime = 0;
+        for (int i = 0; i < path.size() - 1; i++) {
+            String currentId = path.get(i);
+            String nextId = path.get(i + 1);
+
+            // Find the road connecting these locations
+            for (Road road : getConnectedRoads(currentId)) {
+                if (road.getDestination().getId().equals(nextId)) {
+                    totalTime += road.getTravelTime(); // Includes traffic conditions
+                    break;
+                }
+            }
+        }
+        return totalTime;
+    }
+
 
 }
