@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 
 public class Delivery implements Comparable<Delivery> {
@@ -13,9 +14,9 @@ public class Delivery implements Comparable<Delivery> {
     private DeliveryPriority priority;
 
     public enum DeliveryPriority {
-        HIGH(3),
+        LOW(1),
         MEDIUM(2),
-        LOW(1);
+        HIGH(3);
 
         private final int value;
         DeliveryPriority(int value) { this.value = value; }
@@ -41,6 +42,20 @@ public class Delivery implements Comparable<Delivery> {
     public double getEstimatedTime() { return estimatedTime; }
     public DeliveryPriority getPriority() { return priority; }
 
+    public void printDelivery() {
+
+        // Define the formatter
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        System.out.print("ID: " + id + "  |  ");
+        System.out.print("Destination: " + destinationId + "  |  ");
+        System.out.print("Load: " + String.format("%.2f", load) + "  |  ");
+        System.out.print("Deadline: " + deadline.format(formatter) + "  |  ");
+        System.out.print("Estimated Time: " + String.format("%.2f", estimatedTime) + " hours  |  ");
+        System.out.println("Priority: " + priority);
+    }
+
+
     @Override
     public int compareTo(Delivery other) {
         // First compare by priority
@@ -53,5 +68,8 @@ public class Delivery implements Comparable<Delivery> {
         // Then by deadline
         return this.deadline.compareTo(other.deadline);
     }
+
+
+
 }
 

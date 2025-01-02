@@ -1,6 +1,92 @@
 package org.example;
+
+
 import java.util.*;
+import java.time.*;
+
 public class Main {
+
+
+    private static void testPathFinding(LogisticsNetwork network) {
+        System.out.println("\n-----------------------------------Testing path finding starts----------------------------------------------\n");
+
+        // Test 1: Find path from Central Hub to Northeast Customer
+        System.out.println("\nPath from Central Hub (H1) to Northeast Customer (C6):");
+        System.out.println("\tShortest path  (Distance) : " + network.findPath("H1", "C6", true));
+        System.out.println("\tFastest path (Travel Time): " + network.findPath("H1", "C6", false));
+        System.out.println("\n------------------------------------Testing path finding ends----------------------------------------------\n");
+
+        // Test 2: Find path from West Hub to East Customer
+//        System.out.println("\nPath from West Hub (H5) to East Customer (C3):");
+//        System.out.println("\tShortest path  (Distance) : " + network.findPath("H5", "C3", true));
+//        System.out.println("\tFastest path (Travel Time): " + network.findPath("H5", "C3", false));
+//
+//        // Test 3: Find path between distant customers
+//        System.out.println("\nPath from Southwest Customer (C7) to Northeast Customer (C6):");
+//        System.out.println("\tShortest path  (Distance) : " + network.findPath("C7", "C6", true));
+//        System.out.println("\tFastest path (Travel Time): " + network.findPath("C7", "C6", false));
+    }
+
+
+    private static void testDeliveryScheduling(LogisticsNetwork network) {
+
+        System.out.println("\n-----------------------------------Testing Delivery Scheduling System starts----------------------------------------------\n");
+
+        DeliveryScheduler scheduler = new DeliveryScheduler(network);
+        
+        // Create vehicles
+        Vehicle vehicle1 = new Vehicle("V1", 15.0, network.getLocation("H1"));
+        Vehicle vehicle2 = new Vehicle("V2", 20.0, network.getLocation("H2"));
+        Vehicle vehicle3 = new Vehicle("V3", 10.0, network.getLocation("H3"));
+        
+        scheduler.addVehicle(vehicle1);
+        scheduler.addVehicle(vehicle2);
+        scheduler.addVehicle(vehicle3);
+        
+        // Create deliveries with different priorities and deadlines
+        LocalDateTime now = LocalDateTime.now();
+
+        System.out.println("=== Delivery Details ===");
+
+        Delivery d1 = new Delivery("D1", "C1", 10.0, now.plusHours(2), 1.5, Delivery.DeliveryPriority.HIGH);
+        Delivery d2 = new Delivery("D2", "C4", 7.0, now.plusHours(10), 2.0, Delivery.DeliveryPriority.MEDIUM);
+        Delivery d3 = new Delivery("D3", "C7", 10.0, now.plusHours(15), 1.0, Delivery.DeliveryPriority.LOW);
+        Delivery d4 = new Delivery("D4", "C2", 6.0, now.plusHours(2), 1.0, Delivery.DeliveryPriority.HIGH);
+
+        d1.printDelivery();
+        d2.printDelivery();
+        d3.printDelivery();
+        d4.printDelivery();
+
+        System.out.println("==================================================================================================================================");
+        
+        scheduler.addDelivery(d1);
+        scheduler.addDelivery(d2);
+        scheduler.addDelivery(d3);
+        scheduler.addDelivery(d4);
+        
+        // Schedule deliveries and display results
+        scheduler.scheduleDeliveries();
+        scheduler.displaySchedule();
+
+        Delivery d5 = new Delivery("D5", "C3", 5.0, now.plusHours(9), 1.0, Delivery.DeliveryPriority.LOW);
+        Delivery d6 = new Delivery("D6", "C6", 6.0, now.plusHours(4), 1.0, Delivery.DeliveryPriority.HIGH);
+
+        d5.printDelivery();
+        d6.printDelivery();
+
+        scheduler.addDelivery(d5);
+        scheduler.addDelivery(d6);
+
+        scheduler.scheduleDeliveries();
+        scheduler.displaySchedule();
+
+
+        System.out.println("\n------------------------------------Testing Delivery Scheduling System ends----------------------------------------------\n");
+    }
+
+
+
     public static void main(String[] args) {
         // Create a LogisticsNetwork instance
         LogisticsNetwork network = new LogisticsNetwork();
@@ -82,24 +168,11 @@ public class Main {
 
 
         // Test pathfinding with different scenarios
-        System.out.println("\nTesting different paths:");
+        testPathFinding(network);
 
-        // Test 1: Find path from Central Hub to Northeast Customer
-        System.out.println("\nPath from Central Hub (H1) to Northeast Customer (C6):");
-        System.out.println("Shortest path  (Distance) : " + network.findPath("H1", "C6", true));
-        System.out.println("Fastest path (Travel Time): " + network.findPath("H1", "C6", false));
+        testDeliveryScheduling(network);
 
-        // Test 2: Find path from West Hub to East Customer
-        System.out.println("\nPath from West Hub (H5) to East Customer (C3):");
-        System.out.println("Shortest path  (Distance) : " + network.findPath("H5", "C3", true));
-        System.out.println("Fastest path (Travel Time): " + network.findPath("H5", "C3", false));
-
-        // Test 3: Find path between distant customers
-        System.out.println("\nPath from Southwest Customer (C7) to Northeast Customer (C6):");
-        System.out.println("Shortest path  (Distance) : " + network.findPath("C7", "C6", true));
-        System.out.println("Fastest path (Travel Time): " + network.findPath("C7", "C6", false));
-
-
+/*
         // Setup delivery requirements
         Map<String, Double> deliveryLoads = new HashMap<>();
         deliveryLoads.put("C1", 5.0);  // 5 units to Customer 1
@@ -122,8 +195,34 @@ public class Main {
         );
 
         System.out.println("Optimal delivery route: " + optimalRoute);
+*/
 
 
+        // Test adaptive routing with congestion prediction
+        System.out.println("\nTesting adaptive routing with congestion prediction:");
+        LocalDateTime currentTime = LocalDateTime.now();
 
+        // Test route during peak hours
+        LocalDateTime peakHour = LocalDateTime.of(
+            LocalDate.now(), LocalTime.of(8, 0)); // 8:00 AM
+        System.out.println("\nFinding route during peak hours (8:00 AM) from H1 to C6:");
+        List<String> peakHourRoute = network.findAdaptiveRoute("H1", "C6", peakHour);
+        System.out.println("Adaptive route during peak hours: " + peakHourRoute);
+
+
+        // Test route during peak hours
+        LocalDateTime morningHour = LocalDateTime.of(
+                LocalDate.now(), LocalTime.of(6, 0)); // 8:00 AM
+        System.out.println("\nFinding route during peak hours (6:00 AM) from H1 to C6:");
+        List<String> morningHourRoute = network.findAdaptiveRoute("H1", "C6", morningHour);
+        System.out.println("Adaptive route during peak hours: " + morningHourRoute);
+
+
+        // Test route during off-peak hours
+        LocalDateTime offPeakHour = LocalDateTime.of(
+            LocalDate.now(), LocalTime.of(14, 0)); // 2:00 PM
+        System.out.println("\nFinding route during off-peak hours (2:00 PM) from H1 to C6:");
+        List<String> offPeakRoute = network.findAdaptiveRoute("H1", "C6", offPeakHour);
+        System.out.println("Adaptive route during off-peak hours: " + offPeakRoute);
     }
 }

@@ -1,10 +1,11 @@
 package org.example;
 import java.util.*;
+import java.time.*;
 
 public class LogisticsNetwork {
 
     // LocationID = key, Location = value      ["H1": ("H1", "Hub1", true), "L1": ("L1", "Location1", False).....]
-    private Map<String, Location> locations; // Nodes of the graph
+    private Map<String, Location> locations; // Nodes of the graph : O(V)
 
     // LocationID = key, Set of Roads = value
     // ["H1" : (
@@ -15,12 +16,15 @@ public class LogisticsNetwork {
     //          ("R1", (source Location), (destination Location), distance=400.0, cogestion=1, avgSpeed=50),
     //           ("R2", (source Location), (destination Location), distance=500.0, cogestion=1, avgSpeed=50)
     //          )]
-    private Map<String, Set<Road>> adjacencyList; // Adjacency list for edges
+    private Map<String, Set<Road>> adjacencyList; // Adjacency list for edges O(V + E)
+
+    private CongestionPredictor congestionPredictor;
 
 
     public LogisticsNetwork() {
         this.locations = new HashMap<>();
         this.adjacencyList = new HashMap<>();
+        this.congestionPredictor = new CongestionPredictor();
     }
 
 
@@ -32,6 +36,14 @@ public class LogisticsNetwork {
         }
         locations.put(location.getId(), location);
         adjacencyList.put(location.getId(), new HashSet<>());
+    }
+
+    public Location getLocation(String locationId) {
+        Location location = locations.get(locationId);
+        if (location == null) {
+            throw new IllegalArgumentException("Location not found: " + locationId);
+        }
+        return location;
     }
 
     // Remove a location (node) and its associated roads
@@ -97,7 +109,7 @@ public class LogisticsNetwork {
     }
 
     // Display the current state of the network
-    public void displayNetwork() {
+    public void displayNetwork1() {
         for (String locationId : adjacencyList.keySet()) {
             System.out.println("Location: " + locationId);
             for (Road road : adjacencyList.get(locationId)) {
@@ -107,6 +119,75 @@ public class LogisticsNetwork {
         }
     }
 
+    public void displayNetwork() {
+        System.out.println("\n=== Network Connectivity Details ===");
+        System.out.printf("%-8s %-8s %-10s %-12s %-12s %-12s%n",
+            "From", "To", "Distance", "Congestion", "Avg Speed", "Travel Time");
+        System.out.println("------------------------------------------------------------------------");
+        
+        for (String locationId : adjacencyList.keySet()) {
+            for (Road road : adjacencyList.get(locationId)) {
+                System.out.printf("%-8s %-8s %-10.2f %-12.2f %-12.2f %-12.2f%n",
+                    locationId,
+                    road.getDestination().getId(),
+                    road.getDistance(),
+                    road.getCurrentCongestion(),
+                    road.getAverageSpeed(),
+                    road.getTravelTime());
+            }
+        }
+        System.out.println("========================================================================");
+    }
+
+    /*
+    public List<String> findPath1(String startId, String endId, boolean useDistance) {
+        // Initialize distances, previous nodes, and priority queue
+        Map<String, Double> distances = new HashMap<>();
+        Map<String, String> previousNode = new HashMap<>();
+        PriorityQueue<String> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+
+        // Set initial distances
+        for (String locationId : locations.keySet()) {
+            distances.put(locationId, Double.MAX_VALUE);
+        }
+        distances.put(startId, 0.0);
+        priorityQueue.add(startId);
+
+        while (!priorityQueue.isEmpty()) {
+            String current = priorityQueue.poll();
+
+            // Early exit if we reach the destination
+            if (current.equals(endId)) {
+                break;
+            }
+
+            // Update distances for neighbors
+            for (Road road : getConnectedRoads(current)) {
+                String neighbor = road.getDestination().getId();
+                double cost = useDistance ? road.getDistance() : road.getTravelTime();
+                double newDistance = distances.get(current) + cost;
+
+                if (newDistance < distances.get(neighbor)) {
+                    distances.put(neighbor, newDistance);
+                    previousNode.put(neighbor, current);
+                    priorityQueue.add(neighbor);
+                }
+            }
+        }
+
+        // Reconstruct the path
+        List<String> path = new LinkedList<>();
+        for (String at = endId; at != null; at = previousNode.get(at)) {
+            path.add(0, at);
+        }
+
+        if (!path.isEmpty() && path.get(0).equals(startId)) {
+            return path; // Valid path
+        } else {
+            return Collections.emptyList(); // No path found
+        }
+    }
+*/
 
 
     public List<String> findPath(String startId, String endId, boolean useDistance) {
@@ -124,6 +205,7 @@ public class LogisticsNetwork {
             distances.put(locationId, Double.MAX_VALUE);
         }
         distances.put(startId, 0.0);
+
 
         while (!unvisited.isEmpty()) {
             // Find closest unvisited node
@@ -157,6 +239,61 @@ public class LogisticsNetwork {
         // Build the path
         return buildPath(startId, endId, previousNode);
     }
+
+    // Add this method to find alternative routes avoiding congested areas
+    public List<String> findAdaptiveRoute(String startId, String endId, LocalDateTime time) {
+        if (!locations.containsKey(startId) || !locations.containsKey(endId)) {
+            return new ArrayList<>();
+        }
+        
+        // Initialize data structures for Dijkstra's algorithm
+        Map<String, Double> distances = new HashMap<>();
+        Map<String, String> previousNode = new HashMap<>();
+        Set<String> unvisited = new HashSet<>(locations.keySet());
+        
+        // Set initial distances
+        for (String locationId : locations.keySet()) {
+            distances.put(locationId, Double.MAX_VALUE);
+        }
+        distances.put(startId, 0.0);
+
+//        System.out.println("===========================> DEBUG  <===========================");
+//        System.out.println("LocalDateTime: " + time );
+//        System.out.println("================================================================\n");
+
+
+        while (!unvisited.isEmpty()) {
+            String current = findClosestNode(unvisited, distances);
+            if (current == null || current.equals(endId)) break;
+            
+            unvisited.remove(current);
+            
+            // Check each neighbor
+            for (Road road : getConnectedRoads(current)) {
+                String neighbor = road.getDestination().getId();
+                if (!unvisited.contains(neighbor)) continue;
+                
+                // Consider both current congestion and predicted congestion
+                double predictedCongestion = congestionPredictor.predictCongestion(road, time);
+                double adjustedCost = road.getDistance() * predictedCongestion;
+                
+                // If this is likely to be a bottleneck, increase the cost
+                if (congestionPredictor.isLikelyBottleneck(road, time)) {
+                    adjustedCost *= 1.5; // Penalty for potential bottlenecks
+                }
+                
+                double newDistance = distances.get(current) + adjustedCost;
+                if (newDistance < distances.get(neighbor)) {
+                    distances.put(neighbor, newDistance);
+                    previousNode.put(neighbor, current);
+                }
+            }
+        }
+        
+        return buildPath(startId, endId, previousNode);
+    }
+
+
     private String findClosestNode(Set<String> unvisited, Map<String, Double> distances) {
         String closest = null;
         double minDistance = Double.MAX_VALUE;
