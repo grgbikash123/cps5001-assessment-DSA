@@ -10,21 +10,21 @@ public class Main {
     private static void testPathFinding(LogisticsNetwork network) {
         System.out.println("\n-----------------------------------Testing path finding starts----------------------------------------------\n");
 
-        // Test 1: Find path from Central Hub to Northeast Customer
-        System.out.println("\nPath from Central Hub (H1) to Northeast Customer (C6):");
+        // Test 1: finding path from H1 Hub to Northeast Customer
+        System.out.println("\nPath from Central Hub (H1) to Customer (C6):");
         System.out.println("\tShortest path  (Distance) : " + network.findPath("H1", "C6", true));
         System.out.println("\tFastest path (Travel Time): " + network.findPath("H1", "C6", false));
         System.out.println("\n------------------------------------Testing path finding ends----------------------------------------------\n");
 
-        // Test 2: Find path from West Hub to East Customer
-//        System.out.println("\nPath from West Hub (H5) to East Customer (C3):");
-//        System.out.println("\tShortest path  (Distance) : " + network.findPath("H5", "C3", true));
-//        System.out.println("\tFastest path (Travel Time): " + network.findPath("H5", "C3", false));
-//
-//        // Test 3: Find path between distant customers
-//        System.out.println("\nPath from Southwest Customer (C7) to Northeast Customer (C6):");
-//        System.out.println("\tShortest path  (Distance) : " + network.findPath("C7", "C6", true));
-//        System.out.println("\tFastest path (Travel Time): " + network.findPath("C7", "C6", false));
+        // Test 2: finding path from H5  Hub to East Customer
+        System.out.println("\nPath from West Hub (H5) to Customer (C3):");
+        System.out.println("\tShortest path  (Distance) : " + network.findPath("H5", "C3", true));
+        System.out.println("\tFastest path (Travel Time): " + network.findPath("H5", "C3", false));
+
+        // Test 3: finding path between distant customers
+        System.out.println("\nPath from Southwest Customer (C7) to Customer (C6):");
+        System.out.println("\tShortest path  (Distance) : " + network.findPath("C7", "C6", true));
+        System.out.println("\tFastest path (Travel Time): " + network.findPath("C7", "C6", false));
     }
 
 
@@ -34,7 +34,7 @@ public class Main {
 
         DeliveryScheduler scheduler = new DeliveryScheduler(network);
         
-        // Create vehicles
+        // Vehicle instances vehicle1, vehicle2, vehicle3
         Vehicle vehicle1 = new Vehicle("V1", 15.0, network.getLocation("H1"));
         Vehicle vehicle2 = new Vehicle("V2", 20.0, network.getLocation("H2"));
         Vehicle vehicle3 = new Vehicle("V3", 10.0, network.getLocation("H3"));
@@ -43,7 +43,7 @@ public class Main {
         scheduler.addVehicle(vehicle2);
         scheduler.addVehicle(vehicle3);
         
-        // Create deliveries with different priorities and deadlines
+        // deliveries with different priorities and deadlines
         LocalDateTime now = LocalDateTime.now();
 
         System.out.println("=== Delivery Details ===");
@@ -65,7 +65,7 @@ public class Main {
         scheduler.addDelivery(d3);
         scheduler.addDelivery(d4);
         
-        // Schedule deliveries and display results
+        // scheduling deliveries and display results
         scheduler.scheduleDeliveries();
         scheduler.displaySchedule();
 
@@ -85,20 +85,18 @@ public class Main {
         System.out.println("\n------------------------------------Testing Delivery Scheduling System ends----------------------------------------------\n");
     }
 
-
-
     public static void main(String[] args) {
-        // Create a LogisticsNetwork instance
+        // creating a LogisticsNetwork instance
         LogisticsNetwork network = new LogisticsNetwork();
 
-        // Create hub locations
+        // creating hub locations
         Location hub1 = new Location("H1", "Central Hub", true);
         Location hub2 = new Location("H2", "North Hub", true);
         Location hub3 = new Location("H3", "South Hub", true);
         Location hub4 = new Location("H4", "East Hub", true);
         Location hub5 = new Location("H5", "West Hub", true);
 
-        // Create customer locations
+        // creating customer locations
         Location customer1 = new Location("C1", "Customer North", false);
         Location customer2 = new Location("C2", "Customer South", false);
         Location customer3 = new Location("C3", "Customer East", false);
@@ -107,7 +105,7 @@ public class Main {
         Location customer6 = new Location("C6", "Customer Northeast", false);
         Location customer7 = new Location("C7", "Customer Southwest", false);
 
-        // Add all locations to the network
+        // adding all locations to the network
         network.addLocation(hub1);
         network.addLocation(hub2);
         network.addLocation(hub3);
@@ -121,53 +119,44 @@ public class Main {
         network.addLocation(customer6);
         network.addLocation(customer7);
 
-        // Create roads connecting locations with different distances and conditions
-        // Central connections
-        network.addRoad(new Road("R1", hub1, customer5, 30));  // Central hub to central customer
-        network.addRoad(new Road("R2", hub1, hub2, 80));       // Central to North hub
-        network.addRoad(new Road("R3", hub1, hub3, 75));       // Central to South hub
-        network.addRoad(new Road("R4", hub1, hub4, 90));       // Central to East hub
-        network.addRoad(new Road("R5", hub1, hub5, 85));       // Central to West hub
+        // roads connecting locations with different distances and conditions
+        network.addRoad(new Road("R1", hub1, customer5, 30));
+        network.addRoad(new Road("R2", hub1, hub2, 80));
+        network.addRoad(new Road("R3", hub1, hub3, 75));
+        network.addRoad(new Road("R4", hub1, hub4, 90));
+        network.addRoad(new Road("R5", hub1, hub5, 85));
 
-        // North area connections
-        network.addRoad(new Road("R6", hub2, customer1, 40));  // North hub to north customer
-        network.addRoad(new Road("R7", hub2, customer6, 35));  // North hub to northeast customer
-        network.addRoad(new Road("R8", hub2, hub4, 60));       // North hub to East hub
+        network.addRoad(new Road("R6", hub2, customer1, 40)); 
+        network.addRoad(new Road("R7", hub2, customer6, 35));  
+        network.addRoad(new Road("R8", hub2, hub4, 60));
 
-        // South area connections
-        network.addRoad(new Road("R9", hub3, customer2, 40));  // South hub to south customer
-        network.addRoad(new Road("R10", hub3, customer7, 30)); // South hub to southwest customer
-        network.addRoad(new Road("R11", hub3, hub5, 58));      // South hub to West hub
+        network.addRoad(new Road("R9", hub3, customer2, 40)); 
+        network.addRoad(new Road("R10", hub3, customer7, 30));
+        network.addRoad(new Road("R11", hub3, hub5, 58));
 
-        // East area connections
-        network.addRoad(new Road("R12", hub4, customer3, 42)); // East hub to east customer
-        network.addRoad(new Road("R13", hub4, customer6, 33)); // East hub to northeast customer
+        network.addRoad(new Road("R12", hub4, customer3, 42));
+        network.addRoad(new Road("R13", hub4, customer6, 33));
 
-        // West area connections
-        network.addRoad(new Road("R14", hub5, customer4, 30)); // West hub to west customer
-        network.addRoad(new Road("R15", hub5, customer7, 35)); // West hub to southwest customer
+        network.addRoad(new Road("R14", hub5, customer4, 30));
+        network.addRoad(new Road("R15", hub5, customer7, 35));
 
-        // Add some cross connections
-        network.addRoad(new Road("R16", customer5, customer1, 70)); // Central to North customer
-        network.addRoad(new Road("R17", customer5, customer3, 65)); // Central to East customer
-        network.addRoad(new Road("R18", customer6, customer3, 28)); // Northeast to East customer
-        network.addRoad(new Road("R19", customer7, customer4, 30)); // Southwest to West customer
+        network.addRoad(new Road("R16", customer5, customer1, 70));
+        network.addRoad(new Road("R17", customer5, customer3, 65)); 
+        network.addRoad(new Road("R18", customer6, customer3, 28)); 
+        network.addRoad(new Road("R19", customer7, customer4, 30)); 
 
-        // Add some traffic conditions
-        Road congested1 = new Road("R20", hub1, hub4, 75); // Alternative route to East hub
-        congested1.setCurrentCongestion(2.0); // High traffic
+        Road congested1 = new Road("R20", hub1, hub4, 75);
+        congested1.setCurrentCongestion(2.0);
         network.addRoad(congested1);
 
         Road congested2 = new Road("R21", customer5, customer2, 60);
-        congested2.setCurrentCongestion(1.5); // Medium traffic
+        congested2.setCurrentCongestion(1.5);
         network.addRoad(congested2);
 
-        // Display the initial network
         System.out.println("Initial Network Structure:");
         network.displayNetwork();
 
 
-        // Test pathfinding with different scenarios
         testPathFinding(network);
 
         testDeliveryScheduling(network);
@@ -198,11 +187,9 @@ public class Main {
 */
 
 
-        // Test adaptive routing with congestion prediction
         System.out.println("\nTesting adaptive routing with congestion prediction:");
         LocalDateTime currentTime = LocalDateTime.now();
 
-        // Test route during peak hours
         LocalDateTime peakHour = LocalDateTime.of(
             LocalDate.now(), LocalTime.of(8, 0)); // 8:00 AM
         System.out.println("\nFinding route during peak hours (8:00 AM) from H1 to C6:");
@@ -210,7 +197,6 @@ public class Main {
         System.out.println("Adaptive route during peak hours: " + peakHourRoute);
 
 
-        // Test route during peak hours
         LocalDateTime morningHour = LocalDateTime.of(
                 LocalDate.now(), LocalTime.of(6, 0)); // 8:00 AM
         System.out.println("\nFinding route during peak hours (6:00 AM) from H1 to C6:");
@@ -218,7 +204,6 @@ public class Main {
         System.out.println("Adaptive route during peak hours: " + morningHourRoute);
 
 
-        // Test route during off-peak hours
         LocalDateTime offPeakHour = LocalDateTime.of(
             LocalDate.now(), LocalTime.of(14, 0)); // 2:00 PM
         System.out.println("\nFinding route during off-peak hours (2:00 PM) from H1 to C6:");

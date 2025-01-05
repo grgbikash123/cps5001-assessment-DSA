@@ -33,8 +33,12 @@ public class Vehicle {
             }
         }
     }
+
+    public void getDetailsTable() {
+        System.out.printf("Vehicle %s (Load: %.2f/%.2f, Available: %b)\n",
+                id, currentLoad, capacity, available);
+    }
     
-    // Getters
     public String getId() { return id; }
     public double getCapacity() { return capacity; }
     public double getCurrentLoad() { return currentLoad; }

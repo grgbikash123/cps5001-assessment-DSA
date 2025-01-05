@@ -9,18 +9,17 @@ public class DeliveryScheduler {
     private PriorityQueue<Delivery> deliveryQueue;
     private Map<String, Vehicle> availableVehicles;
     private Map<String, List<Delivery>> scheduledDeliveries;
-    private LogisticsNetwork logisticsNetwork; // Add this field
+    private LogisticsNetwork logisticsNetwork;
 
     
     public DeliveryScheduler(LogisticsNetwork logisticsNetwork) {
         this.logisticsNetwork = logisticsNetwork;
-        // Initialize with custom comparator for delivery prioritization
+        // initialize with custom comparator for delivery prioritization
         this.deliveryQueue = new PriorityQueue<>((d1, d2) -> {
-            // First compare by priority
             int priorityCompare = d2.getPriority().getValue() - d1.getPriority().getValue();
             if (priorityCompare != 0) return priorityCompare;
             
-            // Then by deadline
+            // then by deadline
             return d1.getDeadline().compareTo(d2.getDeadline());
         });
         
@@ -96,7 +95,7 @@ public class DeliveryScheduler {
             return;
         }
 
-        // Define the formatter
+        // define the formatter
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
@@ -125,9 +124,9 @@ public class DeliveryScheduler {
                 for (int i = 0; i < deliveries.size(); i++) {
                     Delivery d = deliveries.get(i);
                     List<String> route = logisticsNetwork.findPath(currentLocation, d.getDestinationId(), false);
-                    String routeStr = String.join(" → ", route);
+                    String routeStr = String.join(" > ", route);
 
-                    // Calculate actual travel time using the network
+                    // calculate actual travel time using the network
                     double travelTime = logisticsNetwork.calculatePathTime(route);
 
                     // System.out.printf("%-6s %-8.2f %-12s %-25s %-8.2f %s%n",
@@ -142,10 +141,9 @@ public class DeliveryScheduler {
                         d.getLoad(),
                         d.getDestinationId(),
                         d.getDeadline().format(formatter),
-                        travelTime,  // Using actual calculated travel time
+                        travelTime,
                         d.getPriority(),
                         routeStr);
-                    // Update current location for next delivery
                     currentLocation = d.getDestinationId();
 
                 }

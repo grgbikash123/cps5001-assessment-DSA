@@ -14,45 +14,28 @@ public class Road {
         this.source = source;
         this.destination = destination;
         this.distance = distance;
-        this.currentCongestion = 1.0; // Default congestion factor
-        this.averageSpeed = 50.0; // Default speed in km/h
+        this.currentCongestion = 1.0; // default congestion factor
+        this.averageSpeed = 50.0; // default speed in km/h
     }
 
-    // Getters
-    public double getTravelTime() {
-        return (distance / averageSpeed) * currentCongestion;
-    }
+    public double getTravelTime() { return (distance / averageSpeed) * currentCongestion; }
 
-    public Location getSource() {
-        return source;
-    }
+    public Location getSource() { return source; }
 
-    public Location getDestination() {
-        return destination;
-    }
+    public Location getDestination() { return destination; }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
 
-    public double getDistance() {
-        return distance;
-    }
+    public double getDistance() { return distance; }
 
-    public double getCurrentCongestion() {
-        return currentCongestion;
-    }
+    public double getCurrentCongestion() { return currentCongestion; }
 
-    public double getAverageSpeed() {
-        return averageSpeed;
-    }
+    public double getAverageSpeed() { return averageSpeed; }
 
 
-    // Setters
     public void setDistance(double distance) {
         this.distance = distance;
     }
-
 
     public void setCurrentCongestion(double currentCong) {
         this.currentCongestion = currentCong;

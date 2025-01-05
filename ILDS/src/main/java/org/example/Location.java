@@ -4,7 +4,7 @@ package org.example;
 public class Location {
     private String id;
     private String name;
-    private boolean isHub;
+    private boolean isHub;    // true if Node is Hub and false if node is customer location
 
     public Location(String id, String name, boolean isHub) {
         this.id = id;

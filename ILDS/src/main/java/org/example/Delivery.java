@@ -34,7 +34,6 @@ public class Delivery implements Comparable<Delivery> {
         this.priority = priority;
     }
 
-    // Getters
     public String getId() { return id; }
     public String getDestinationId() { return destinationId; }
     public double getLoad() { return load; }
@@ -44,7 +43,6 @@ public class Delivery implements Comparable<Delivery> {
 
     public void printDelivery() {
 
-        // Define the formatter
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         System.out.print("ID: " + id + "  |  ");
@@ -58,14 +56,12 @@ public class Delivery implements Comparable<Delivery> {
 
     @Override
     public int compareTo(Delivery other) {
-        // First compare by priority
         int priorityCompare = Integer.compare(
                 other.priority.getValue(),
                 this.priority.getValue()
         );
         if (priorityCompare != 0) return priorityCompare;
 
-        // Then by deadline
         return this.deadline.compareTo(other.deadline);
     }
 

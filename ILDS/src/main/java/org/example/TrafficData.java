@@ -6,6 +6,7 @@ import java.util.*;
 public class TrafficData {
     // Store historical congestion data: roadId -> hour -> congestion records
     private Map<String, Map<Integer, List<Double>>> historicalCongestion;
+
     // Store current traffic patterns: roadId -> current congestion
     private Map<String, Double> currentTrafficPatterns;
     
@@ -27,7 +28,7 @@ public class TrafficData {
     public double getPredictedCongestion(String roadId, int hour) {
         Map<Integer, List<Double>> roadData = historicalCongestion.get(roadId);
         if (roadData == null || !roadData.containsKey(hour)) {
-            return 1.0; // Default congestion if no data
+            return 1.0;
         }
         
         List<Double> hourlyData = roadData.get(hour);

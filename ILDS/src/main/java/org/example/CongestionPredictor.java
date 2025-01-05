@@ -14,18 +14,17 @@ public class CongestionPredictor {
     }
     
     private void initializeDefaultThresholds() {
-        // Define congestion thresholds for different road types
-        congestionThresholds.put("MAIN", 2.0);    // Main roads
-        congestionThresholds.put("SECONDARY", 1.5); // Secondary roads
-        congestionThresholds.put("LOCAL", 1.2);    // Local roads
+        // define congestion thresholds for different road types
+        congestionThresholds.put("MAIN", 2.0);
+        congestionThresholds.put("SECONDARY", 1.5);
+        congestionThresholds.put("LOCAL", 1.2);
     }
     
     public double predictCongestion(Road road, LocalDateTime time) {
-        // Combine historical data with current patterns
         double historicalCongestion = trafficData.getPredictedCongestion(road.getId(), time.getHour());
         double currentCongestion = road.getCurrentCongestion();
         
-        // Weight current conditions more heavily than historical data
+        // weight current conditions more heavily than historical data
         double weightCurrent = 0.7;
         double weightHistorical = 0.3;
         
@@ -39,7 +38,7 @@ public class CongestionPredictor {
     }
     
     private String determineRoadType(Road road) {
-        // Simple logic to determine road type based on average speed
+        // simple logic to determine road type based on average speed
         if (road.getAverageSpeed() > 80) return "MAIN";
         if (road.getAverageSpeed() > 50) return "SECONDARY";
         return "LOCAL";
